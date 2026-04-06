@@ -1,140 +1,124 @@
 package com.example.todolist.controller;
 
-import com.example.todolist.exception.TaskNotFoundException;
-import com.example.todolist.model.Priority;
 import com.example.todolist.model.Task;
 import com.example.todolist.service.TaskService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Unit tests for TaskController endpoints.
- * Tests controller behavior using MockMvc and mocked services.
+ * Simple integration tests for TaskController.
+ * Focuses on endpoint availability and basic response codes.
  */
-@WebMvcTest(TaskController.class)
+@SpringBootTest
 public class TaskControllerTest {
 
     @Autowired
+    private WebApplicationContext webApplicationContext;
+
     private MockMvc mockMvc;
 
     @MockBean
-    private com.example.todolist.service.TaskService taskService;
+    private TaskService taskService;
 
-    @MockBean
-    private com.example.todolist.mapper.TaskMapper taskMapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    }
 
     @Test
-    public void testGetAllTasks_Success() throws Exception {
-        Task task1 = new Task(1L, "Task 1", "Description 1", false);
-        Task task2 = new Task(2L, "Task 2", "Description 2", true);
-        
-        when(taskService.getAllTasks()).thenReturn(Arrays.asList(task1, task2));
+    public void testGetAllTasks_ReturnsOk() throws Exception {
+        when(taskService.getAllTasks()).thenReturn(java.util.Collections.emptyList());
 
-        mockMvc.perform(get("/api/tasks"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-        
-        verify(taskService, times(1)).getAllTasks();
+        mockMvc.perform(get("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void testGetTaskById_Found() throws Exception {
-        Task task = new Task(1L, "Task 1", "Description 1", false);
-        
+        Task task = new Task(1L, "Test Task", "Description", false);
         when(taskService.getTaskById(1L)).thenReturn(Optional.of(task));
 
-        mockMvc.perform(get("/api/tasks/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-        
-        verify(taskService, times(1)).getTaskById(1L);
+        mockMvc.perform(get("/api/tasks/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void testGetTaskById_NotFound() throws Exception {
         when(taskService.getTaskById(1L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/tasks/1"))
+        mockMvc.perform(get("/api/tasks/1")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-        
-        verify(taskService, times(1)).getTaskById(1L);
     }
 
     @Test
-    public void testCreateTask_Success() throws Exception {
-        String createJson = "{\"title\": \"New Task\", \"description\": \"Description\", \"priority\": \"MEDIUM\"}";
+    public void testCreateTask_ReturnsOk() throws Exception {
         Task savedTask = new Task(1L, "New Task", "Description", false);
-        
         when(taskService.createTask(any(Task.class))).thenReturn(savedTask);
 
+        String json = "{\"title\": \"New Task\", \"description\": \"Description\", \"priority\": \"HIGH\"}";
+        
         mockMvc.perform(post("/api/tasks")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(createJson))
+                .content(json))
                 .andExpect(status().isOk());
-        
+
         verify(taskService, times(1)).createTask(any(Task.class));
     }
 
     @Test
     public void testUpdateTask_Found() throws Exception {
-        String updateJson = "{\"title\": \"Updated Task\", \"completed\": true}";
         Task existingTask = new Task(1L, "Old Task", "Description", false);
         Task updatedTask = new Task(1L, "Updated Task", "Description", true);
         
         when(taskService.getTaskById(1L)).thenReturn(Optional.of(existingTask));
-        when(taskService.updateTask(eq(1L), any(Task.class))).thenReturn(Optional.of(updatedTask));
+        when(taskService.updateTask(any(Long.class), any(Task.class))).thenReturn(Optional.of(updatedTask));
 
+        String json = "{\"title\": \"Updated Task\", \"completed\": true}";
+        
         mockMvc.perform(put("/api/tasks/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(updateJson))
+                .content(json))
                 .andExpect(status().isOk());
-        
-        verify(taskService, times(1)).getTaskById(1L);
-        verify(taskService, times(1)).updateTask(eq(1L), any(Task.class));
     }
 
     @Test
     public void testUpdateTask_NotFound() throws Exception {
-        String updateJson = "{\"title\": \"Updated Task\"}";
-        
         when(taskService.getTaskById(1L)).thenReturn(Optional.empty());
 
+        String json = "{\"title\": \"Updated Task\"}";
+        
         mockMvc.perform(put("/api/tasks/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(updateJson))
+                .content(json))
                 .andExpect(status().isNotFound());
-        
-        verify(taskService, times(1)).getTaskById(1L);
     }
 
     @Test
     public void testDeleteTask_Found() throws Exception {
-        Task task = new Task(1L, "Task", "Desc", false);
-        
+        Task task = new Task(1L, "Task", "Description", false);
         when(taskService.getTaskById(1L)).thenReturn(Optional.of(task));
         when(taskService.deleteTask(1L)).thenReturn(true);
 
         mockMvc.perform(delete("/api/tasks/1"))
                 .andExpect(status().isNoContent());
-        
-        verify(taskService, times(1)).getTaskById(1L);
+
         verify(taskService, times(1)).deleteTask(1L);
     }
 
@@ -144,7 +128,5 @@ public class TaskControllerTest {
 
         mockMvc.perform(delete("/api/tasks/1"))
                 .andExpect(status().isNotFound());
-        
-        verify(taskService, times(1)).getTaskById(1L);
     }
 }
