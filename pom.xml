@@ -22,6 +22,8 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>${basedir}/semestr2/src/main/java</sourceDirectory>
+        <testSourceDirectory>${basedir}/semestr2/src/test/java</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
