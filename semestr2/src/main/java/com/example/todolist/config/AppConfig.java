@@ -4,12 +4,14 @@ import com.example.todolist.repository.StubTaskRepository;
 import com.example.todolist.repository.TaskRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * Configuration class for defining beans.
- * Configures the StubTaskRepository as a bean.
+ * Configures the StubTaskRepository as a bean and enables JPA auditing.
  */
 @Configuration
+@EnableJpaAuditing
 public class AppConfig {
 
     /**

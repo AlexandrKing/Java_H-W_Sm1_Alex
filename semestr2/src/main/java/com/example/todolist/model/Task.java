@@ -1,22 +1,58 @@
 package com.example.todolist.model;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 /**
  * Represents a task in the To-Do List Manager.
  */
+@Entity
+@Table(name = "tasks")
+@EntityListeners(AuditingEntityListener.class)
 public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 255)
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
-    private boolean completed;
+
+    @Column(nullable = false)
+    private boolean completed = false;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date", nullable = false)
+    private LocalDateTime lastModifiedDate;
+
+    @Column(name = "due_date")
     private LocalDate dueDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private Priority priority;
-    private Set<String> tags;
+
+    @ElementCollection
+    @CollectionTable(name = "task_tags", joinColumns = @JoinColumn(name = "task_id"))
+    @Column(name = "tag")
+    private Set<String> tags = new HashSet<>();
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Set<TaskAttachment> attachments = new HashSet<>();
 
     public Task() {
     }
@@ -51,7 +87,7 @@ public class Task {
         this.createdAt = createdAt;
         this.dueDate = dueDate;
         this.priority = priority;
-        this.tags = tags;
+        this.tags = tags != null ? new HashSet<>(tags) : new HashSet<>();
     }
 
     // Getters and Setters
@@ -95,6 +131,14 @@ public class Task {
         this.createdAt = createdAt;
     }
 
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
     public LocalDate getDueDate() {
         return dueDate;
     }
@@ -116,7 +160,15 @@ public class Task {
     }
 
     public void setTags(Set<String> tags) {
-        this.tags = tags;
+        this.tags = tags != null ? new HashSet<>(tags) : new HashSet<>();
+    }
+
+    public Set<TaskAttachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Set<TaskAttachment> attachments) {
+        this.attachments = attachments;
     }
 
     @Override
@@ -129,6 +181,7 @@ public class Task {
                 Objects.equals(title, task.title) &&
                 Objects.equals(description, task.description) &&
                 Objects.equals(createdAt, task.createdAt) &&
+                Objects.equals(lastModifiedDate, task.lastModifiedDate) &&
                 Objects.equals(dueDate, task.dueDate) &&
                 priority == task.priority &&
                 Objects.equals(tags, task.tags);
@@ -136,7 +189,7 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, description, completed, createdAt, dueDate, priority, tags);
+        return Objects.hash(id, title, description, completed, createdAt, lastModifiedDate, dueDate, priority, tags);
     }
 
     @Override
@@ -147,9 +200,11 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", completed=" + completed +
                 ", createdAt=" + createdAt +
+                ", lastModifiedDate=" + lastModifiedDate +
                 ", dueDate=" + dueDate +
                 ", priority=" + priority +
                 ", tags=" + tags +
+                ", attachmentsCount=" + (attachments != null ? attachments.size() : 0) +
                 '}';
     }
 }

@@ -6,12 +6,9 @@ import com.example.todolist.dto.TaskUpdateDto;
 import com.example.todolist.exception.TaskNotFoundException;
 import com.example.todolist.mapper.TaskMapper;
 import com.example.todolist.model.Task;
-import com.example.todolist.service.TaskService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.example.todolist.service.TaskStatisticsJdbcService;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -29,16 +26,19 @@ public class TaskController {
 
     private final TaskService taskService;
     private final TaskMapper taskMapper;
+    private final TaskStatisticsJdbcService statisticsService;
 
     /**
-     * Constructor injection of TaskService and TaskMapper.
+     * Constructor injection of TaskService, TaskMapper, and TaskStatisticsJdbcService.
      * @param taskService the service to use
      * @param taskMapper the mapper to use for DTO conversion
+     * @param statisticsService the statistics service to use
      */
     @Autowired
-    public TaskController(TaskService taskService, TaskMapper taskMapper) {
+    public TaskController(TaskService taskService, TaskMapper taskMapper, TaskStatisticsJdbcService statisticsService) {
         this.taskService = taskService;
         this.taskMapper = taskMapper;
+        this.statisticsService = statisticsService;
     }
 
     /**
@@ -114,5 +114,38 @@ public class TaskController {
         }
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Mark multiple tasks as completed.
+     * @param ids list of task IDs to mark as completed
+     * @return no content response
+     */
+    @PostMapping("/bulk-complete")
+    @Operation(summary = "Bulk complete tasks", description = "Mark multiple tasks as completed in a single transaction")
+    public ResponseEntity<Void> bulkCompleteTasks(@RequestBody List<Long> ids) {
+        taskService.bulkCompleteTasks(ids);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Get tasks due within the next 7 days.
+     * @return list of tasks due within 7 days
+     */
+    @GetMapping("/due-soon")
+    @Operation(summary = "Get tasks due soon", description = "Retrieve tasks that are due within the next 7 days")
+    public List<TaskResponseDto> getTasksDueSoon() {
+        List<Task> tasks = taskService.getTasksDueWithin7Days();
+        return taskMapper.toResponseDtoList(tasks);
+    }
+
+    /**
+     * Get task statistics by priority.
+     * @return statistics of tasks grouped by priority
+     */
+    @GetMapping("/statistics/priority")
+    @Operation(summary = "Get task statistics by priority", description = "Retrieve statistics of task counts grouped by priority")
+    public List<Map<String, Object>> getTaskStatisticsByPriority() {
+        return statisticsService.getTasksCountByPriority();
     }
 }

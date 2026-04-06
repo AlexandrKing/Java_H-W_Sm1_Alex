@@ -1,18 +1,21 @@
 package com.example.todolist.attachment;
 
 import com.example.todolist.exception.TaskNotFoundException;
+import com.example.todolist.model.TaskAttachment;
 import com.example.todolist.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST Controller for managing task attachments.
@@ -37,54 +40,70 @@ public class AttachmentController {
      * @param taskId the task ID
      * @param file the file to upload
      * @return uploaded attachment metadata
-     * @throws IOException if file reading fails
      */
     @PostMapping
     @Operation(summary = "Upload attachment", description = "Upload a file attachment to a task")
-    public ResponseEntity<AttachmentDto> uploadAttachment(
+    public ResponseEntity<TaskAttachment> uploadAttachment(
             @PathVariable Long taskId,
-            @RequestParam("file") MultipartFile file) throws IOException {
-        
+            @RequestParam("file") MultipartFile file) {
+
         // Verify task exists
         if (!taskService.getTaskById(taskId).isPresent()) {
             throw new TaskNotFoundException(taskId);
         }
 
-        AttachmentDto attachment = new AttachmentDto(
-                file.getOriginalFilename(),
-                file.getContentType(),
-                file.getBytes()
-        );
-
-        AttachmentDto uploaded = attachmentService.uploadAttachment(taskId, attachment);
+        TaskAttachment uploaded = attachmentService.uploadAttachment(taskId, file);
         return ResponseEntity.ok(uploaded);
+    }
+
+    /**
+     * Get all attachments for a task.
+     * @param taskId the task ID
+     * @return list of attachments
+     */
+    @GetMapping
+    @Operation(summary = "Get task attachments", description = "Get all file attachments for a task")
+    public ResponseEntity<List<TaskAttachment>> getTaskAttachments(@PathVariable Long taskId) {
+        // Verify task exists
+        if (!taskService.getTaskById(taskId).isPresent()) {
+            throw new TaskNotFoundException(taskId);
+        }
+
+        List<TaskAttachment> attachments = attachmentService.getTaskAttachments(taskId);
+        return ResponseEntity.ok(attachments);
     }
 
     /**
      * Download a file attachment from a task.
      * @param taskId the task ID
-     * @param fileName the file name
+     * @param attachmentId the attachment ID
      * @return file content with appropriate headers
      */
-    @GetMapping("/{fileName:.+}")
+    @GetMapping("/{attachmentId}")
     @Operation(summary = "Download attachment", description = "Download a file attachment from a task")
-    public ResponseEntity<ByteArrayResource> downloadAttachment(
+    public ResponseEntity<FileSystemResource> downloadAttachment(
             @PathVariable Long taskId,
-            @PathVariable String fileName) {
-        
+            @PathVariable Long attachmentId) {
+
         // Verify task exists
         if (!taskService.getTaskById(taskId).isPresent()) {
             throw new TaskNotFoundException(taskId);
         }
 
-        AttachmentDto attachment = attachmentService.downloadAttachment(taskId, fileName);
-        if (attachment == null) {
+        Optional<TaskAttachment> attachmentOpt = attachmentService.getAttachment(taskId, attachmentId);
+        if (attachmentOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        ByteArrayResource resource = new ByteArrayResource(attachment.getContent());
+        TaskAttachment attachment = attachmentOpt.get();
+        File file = new File(attachment.getFilePath());
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        FileSystemResource resource = new FileSystemResource(file);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getFileName() + "\"")
                 .contentType(MediaType.parseMediaType(attachment.getContentType() != null ? attachment.getContentType() : "application/octet-stream"))
                 .body(resource);
     }
@@ -92,21 +111,25 @@ public class AttachmentController {
     /**
      * Delete a file attachment from a task.
      * @param taskId the task ID
-     * @param fileName the file name
+     * @param attachmentId the attachment ID
      * @return no content response
      */
-    @DeleteMapping("/{fileName:.+}")
+    @DeleteMapping("/{attachmentId}")
     @Operation(summary = "Delete attachment", description = "Delete a file attachment from a task")
     public ResponseEntity<Void> deleteAttachment(
             @PathVariable Long taskId,
-            @PathVariable String fileName) {
-        
+            @PathVariable Long attachmentId) {
+
         // Verify task exists
         if (!taskService.getTaskById(taskId).isPresent()) {
             throw new TaskNotFoundException(taskId);
         }
 
-        attachmentService.deleteAttachment(taskId, fileName);
+        boolean deleted = attachmentService.deleteAttachment(taskId, attachmentId);
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.noContent().build();
     }
 }
