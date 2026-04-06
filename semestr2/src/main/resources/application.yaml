@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+app:
+  name: To-Do List Manager
+  version: 1.0.0
+
+logging:
+  level:
+    com.example.todolist: DEBUG
+
+---
+spring:
+  profiles: dev
+
+logging:
+  level:
+    com.example.todolist: TRACE
+
+---
+spring:
+  profiles: prod
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.example.todolist: INFO
