@@ -66,8 +66,7 @@ public class TaskControllerTest {
         when(taskService.getTaskById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/tasks/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -106,8 +105,7 @@ public class TaskControllerTest {
         mockMvc.perform(put("/api/tasks/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedTask)))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -116,7 +114,7 @@ public class TaskControllerTest {
 
         mockMvc.perform(delete("/api/tasks/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(content().string(""));
     }
 
     @Test
@@ -124,7 +122,6 @@ public class TaskControllerTest {
         when(taskService.deleteTask(1L)).thenReturn(false);
 
         mockMvc.perform(delete("/api/tasks/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("false"));
+                .andExpect(status().isNotFound());
     }
 }
