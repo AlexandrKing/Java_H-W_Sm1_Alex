@@ -38,9 +38,9 @@ public class AttachmentService {
     public AttachmentService(TaskRepository taskRepository, TaskAttachmentRepository attachmentRepository) {
         this.taskRepository = taskRepository;
         this.attachmentRepository = attachmentRepository;
-        createUploadDirectory();
     }
 
+    @PostConstruct
     private void createUploadDirectory() {
         try {
             Path uploadPath = Paths.get(uploadDir);
@@ -48,7 +48,7 @@ public class AttachmentService {
                 Files.createDirectories(uploadPath);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Could not create upload directory", e);
+            throw new RuntimeException("Could not create upload directory: " + uploadDir, e);
         }
     }
 

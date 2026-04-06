@@ -33,6 +33,7 @@ public class TaskRepositoryTest {
         task.setCompleted(false);
         task.setPriority(Priority.HIGH);
         task.setDueDate(LocalDate.now().plusDays(1));
+        task.setTags(java.util.Set.of("tag1", "tag2"));
 
         // When
         Task savedTask = taskRepository.save(task);
@@ -42,6 +43,7 @@ public class TaskRepositoryTest {
         Optional<Task> foundTask = taskRepository.findById(savedTask.getId());
         assertThat(foundTask).isPresent();
         assertThat(foundTask.get().getTitle()).isEqualTo("Test Task");
+        assertThat(foundTask.get().getTags()).contains("tag1", "tag2");
     }
 
     @Test

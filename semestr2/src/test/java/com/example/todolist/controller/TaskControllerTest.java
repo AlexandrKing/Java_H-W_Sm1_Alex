@@ -1,7 +1,7 @@
 package com.example.todolist.controller;
 
-import com.example.todolist.model.Task;
 import com.example.todolist.service.TaskService;
+import com.example.todolist.service.TaskStatisticsJdbcService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,9 @@ public class TaskControllerTest {
 
     @MockBean
     private TaskService taskService;
+
+    @MockBean
+    private TaskStatisticsJdbcService statisticsService;
 
     @BeforeEach
     public void setup() {
