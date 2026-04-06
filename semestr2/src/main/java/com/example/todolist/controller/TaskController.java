@@ -1,7 +1,5 @@
 package com.example.todolist.controller;
 
-import com.example.todolist.dto.OnCreate;
-import com.example.todolist.dto.OnUpdate;
 import com.example.todolist.dto.TaskCreateDto;
 import com.example.todolist.dto.TaskResponseDto;
 import com.example.todolist.dto.TaskUpdateDto;
@@ -9,19 +7,15 @@ import com.example.todolist.exception.TaskNotFoundException;
 import com.example.todolist.mapper.TaskMapper;
 import com.example.todolist.model.Task;
 import com.example.todolist.service.TaskService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import javax.validation.groups.Default;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST Controller for managing tasks.
@@ -29,7 +23,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/tasks")
-@Validated
 @Tag(name = "Task Management", description = "Operations for managing to-do tasks")
 public class TaskController {
 
@@ -86,7 +79,6 @@ public class TaskController {
         Task task = taskMapper.toEntity(createDto);
         Task savedTask = taskService.createTask(task);
         // Store task ID in session for tracking
-        session.setAttribute("lastCreatedTaskId", savedTask.getId());
         return ResponseEntity.ok(taskMapper.toResponseDto(savedTask));
     }
 
@@ -98,7 +90,6 @@ public class TaskController {
      */
     @PutMapping("/{id}")
     @Operation(summary = "Update a task", description = "Update an existing task with the provided details")
-    @Validated(OnUpdate.class)
     public ResponseEntity<TaskResponseDto> updateTask(
             @PathVariable Long id,
             @Valid @RequestBody TaskUpdateDto updateDto) {

@@ -14,20 +14,20 @@ import java.util.Set;
  */
 public class TaskCreateDto {
 
-    @NotBlank(groups = OnCreate.class)
-    @Size(min = 3, max = 100, groups = OnCreate.class)
+    @NotBlank
+    @Size(min = 3, max = 100)
     private String title;
 
-    @Size(max = 500, groups = OnCreate.class)
+    @Size(max = 500)
     private String description;
 
-    @FutureOrPresent(groups = OnCreate.class)
+    @FutureOrPresent
     private LocalDate dueDate;
 
-    @NotNull(groups = OnCreate.class)
+    @NotNull
     private Priority priority;
 
-    @Size(max = 5, groups = OnCreate.class)
+    @Size(max = 5)
     private Set<String> tags;
 
     public String getTitle() {

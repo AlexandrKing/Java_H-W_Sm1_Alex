@@ -1,7 +1,6 @@
 package com.example.todolist.dto;
 
 import com.example.todolist.model.Priority;
-import com.example.todolist.validation.DueDateNotBeforeCreation;
 
 import javax.validation.constraints.Size;
 import javax.validation.constraints.FutureOrPresent;
@@ -11,23 +10,22 @@ import java.util.Set;
 /**
  * DTO for updating an existing task.
  */
-@DueDateNotBeforeCreation
 public class TaskUpdateDto {
 
-    @Size(min = 3, max = 100, groups = OnUpdate.class)
+    @Size(min = 3, max = 100)
     private String title;
 
-    @Size(max = 500, groups = OnUpdate.class)
+    @Size(max = 500)
     private String description;
 
     private Boolean completed;
 
-    @FutureOrPresent(groups = OnUpdate.class)
+    @FutureOrPresent
     private LocalDate dueDate;
 
     private Priority priority;
 
-    @Size(max = 5, groups = OnUpdate.class)
+    @Size(max = 5)
     private Set<String> tags;
 
     public String getTitle() {
