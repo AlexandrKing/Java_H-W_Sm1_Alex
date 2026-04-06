@@ -1,5 +1,0 @@
-Hello world!
-This is a test file.
-Java file processing is fun!
-We are learning Java IO, NIO and NIO2.
-This is the last line.
