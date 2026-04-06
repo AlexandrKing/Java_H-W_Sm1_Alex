@@ -1,15 +1,14 @@
 package com.example.todolist.repository;
 
 import com.example.todolist.model.Task;
-import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 /**
  * Stub implementation of TaskRepository with fixed data.
  * Used for testing or demonstration purposes.
+ * Note: Bean is created via @Bean method in AppConfig class.
  */
-@Repository
 public class StubTaskRepository implements TaskRepository {
 
     private final List<Task> stubTasks = Arrays.asList(
