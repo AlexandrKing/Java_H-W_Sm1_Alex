@@ -7,12 +7,16 @@ import com.example.todolist.exception.TaskNotFoundException;
 import com.example.todolist.mapper.TaskMapper;
 import com.example.todolist.model.Task;
 import com.example.todolist.service.TaskStatisticsJdbcService;
-import java.util.List;
-import java.util.Map;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
