@@ -133,13 +133,3 @@ public class AttachmentService {
         return false;
     }
 }
-
-    /**
-     * Get all attachments for a task.
-     * @param taskId the task ID
-     * @return map of file names to attachments
-     */
-    public Map<String, AttachmentDto> getAttachments(Long taskId) {
-        return attachments.getOrDefault(taskId, new HashMap<>());
-    }
-}
