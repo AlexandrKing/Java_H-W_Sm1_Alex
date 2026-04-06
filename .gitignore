@@ -67,6 +67,7 @@ gradle-app.setting
 
 #### java ####
 
+target/
 *.class
 
 # Mobile Tools for Java (J2ME)
