@@ -72,7 +72,6 @@ public class TaskController {
      */
     @PostMapping
     @Operation(summary = "Create a new task", description = "Create a new task with the provided details")
-    @Validated(OnCreate.class)
     public ResponseEntity<TaskResponseDto> createTask(
             @Valid @RequestBody TaskCreateDto createDto,
             HttpSession session) {
