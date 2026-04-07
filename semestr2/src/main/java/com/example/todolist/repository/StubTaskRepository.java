@@ -45,4 +45,17 @@ public class StubTaskRepository implements TaskRepository {
         return stubTasks.stream()
                 .anyMatch(task -> task.getId().equals(id));
     }
+
+    @Override
+    public List<Task> findByCompletedAndPriority(boolean completed, com.example.todolist.model.Priority priority) {
+        return stubTasks.stream()
+                .filter(task -> task.isCompleted() == completed)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public List<Task> findTasksDueWithin7Days(java.time.LocalDate today, java.time.LocalDate nextWeek) {
+        // Stub implementation - return empty list
+        return new ArrayList<>();
+    }
 }

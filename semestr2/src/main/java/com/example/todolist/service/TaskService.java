@@ -73,8 +73,8 @@ public class TaskService {
     public void bulkCompleteTasks(List<Long> ids) {
         for (Long id : ids) {
             Optional<Task> taskOpt = taskRepository.findById(id);
-            if (taskOpt.isEmpty()) {
-                throw new TaskNotFoundException("Task with id " + id + " not found");
+            if (!taskOpt.isPresent()) {
+                throw new TaskNotFoundException("Task with id " + id.toString() + " not found");
             }
             Task task = taskOpt.get();
             task.setCompleted(true);

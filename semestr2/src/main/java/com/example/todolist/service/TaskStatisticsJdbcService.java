@@ -33,10 +33,10 @@ public class TaskStatisticsJdbcService {
         return jdbcTemplate.query(sql, new RowMapper<Map<String, Object>>() {
             @Override
             public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return Map.of(
-                    "priority", rs.getString("priority"),
-                    "count", rs.getLong("count")
-                );
+                Map<String, Object> result = new HashMap<>();
+                result.put("priority", rs.getString("priority"));
+                result.put("count", rs.getLong("count"));
+                return result;
             }
         });
     }

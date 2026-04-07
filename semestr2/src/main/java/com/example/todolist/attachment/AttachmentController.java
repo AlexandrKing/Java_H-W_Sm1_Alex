@@ -91,7 +91,7 @@ public class AttachmentController {
         }
 
         Optional<TaskAttachment> attachmentOpt = attachmentService.getAttachment(taskId, attachmentId);
-        if (attachmentOpt.isEmpty()) {
+        if (!attachmentOpt.isPresent()) {
             return ResponseEntity.notFound().build();
         }
 

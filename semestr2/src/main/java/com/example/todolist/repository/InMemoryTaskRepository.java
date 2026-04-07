@@ -46,4 +46,21 @@ public class InMemoryTaskRepository implements TaskRepository {
     public boolean existsById(Long id) {
         return tasks.containsKey(id);
     }
+
+    @Override
+    public List<Task> findByCompletedAndPriority(boolean completed, com.example.todolist.model.Priority priority) {
+        return tasks.values().stream()
+                .filter(task -> task.isCompleted() == completed)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public List<Task> findTasksDueWithin7Days(java.time.LocalDate today, java.time.LocalDate nextWeek) {
+        return tasks.values().stream()
+                .filter(task -> !task.isCompleted() &&
+                        task.getDueDate() != null &&
+                        !task.getDueDate().isBefore(today) &&
+                        !task.getDueDate().isAfter(nextWeek))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

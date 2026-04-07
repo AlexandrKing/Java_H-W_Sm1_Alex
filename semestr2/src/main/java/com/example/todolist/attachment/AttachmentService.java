@@ -63,8 +63,8 @@ public class AttachmentService {
     @Transactional
     public TaskAttachment uploadAttachment(Long taskId, MultipartFile file) {
         Optional<Task> taskOpt = taskRepository.findById(taskId);
-        if (taskOpt.isEmpty()) {
-            throw new TaskNotFoundException("Task with id " + taskId + " not found");
+        if (!taskOpt.isPresent()) {
+            throw new TaskNotFoundException("Task with id " + taskId.toString() + " not found");
         }
 
         Task task = taskOpt.get();
