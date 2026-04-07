@@ -64,4 +64,10 @@ public class StubTaskRepository implements TaskRepository {
         // Stub implementation - return empty list
         return new ArrayList<>();
     }
+
+    @Override
+    public <S extends Task> List<S> findAll(org.springframework.data.domain.Example<S> example) {
+        // Stub implementation - return empty list
+        return new ArrayList<>();
+    }
 }

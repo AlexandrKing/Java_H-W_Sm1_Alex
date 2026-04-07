@@ -69,4 +69,10 @@ public class InMemoryTaskRepository implements TaskRepository {
         // Simple implementation - return all tasks (ignoring example and sort for now)
         return (List<S>) findAll();
     }
+
+    @Override
+    public <S extends Task> List<S> findAll(org.springframework.data.domain.Example<S> example) {
+        // Simple implementation - return all tasks (ignoring example)
+        return (List<S>) findAll();
+    }
 }
