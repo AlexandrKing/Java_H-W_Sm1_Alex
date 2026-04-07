@@ -9,6 +9,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +35,7 @@ public class TaskRepositoryTest {
         task.setCompleted(false);
         task.setPriority(Priority.HIGH);
         task.setDueDate(LocalDate.now().plusDays(1));
-        task.setTags(java.util.Set.of("tag1", "tag2"));
-
+        task.setTags(new HashSet<>(Arrays.asList("tag1", "tag2")));
         // When
         Task savedTask = taskRepository.save(task);
 
