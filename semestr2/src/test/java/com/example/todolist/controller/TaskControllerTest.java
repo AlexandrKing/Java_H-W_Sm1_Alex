@@ -1,5 +1,6 @@
 package com.example.todolist.controller;
 
+import com.example.todolist.model.Task;
 import com.example.todolist.service.TaskService;
 import com.example.todolist.service.TaskStatisticsJdbcService;
 import org.junit.jupiter.api.BeforeEach;
