@@ -6,6 +6,7 @@ import com.example.todolist.dto.TaskUpdateDto;
 import com.example.todolist.exception.TaskNotFoundException;
 import com.example.todolist.mapper.TaskMapper;
 import com.example.todolist.model.Task;
+import com.example.todolist.service.TaskService;
 import com.example.todolist.service.TaskStatisticsJdbcService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
