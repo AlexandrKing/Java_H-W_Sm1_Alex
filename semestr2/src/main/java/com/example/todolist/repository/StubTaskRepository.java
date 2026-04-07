@@ -70,4 +70,13 @@ public class StubTaskRepository implements TaskRepository {
         // Stub implementation - return empty list
         return new ArrayList<>();
     }
+
+    @Override
+    public Task getReferenceById(Long id) {
+        Task task = stubTasks.stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new javax.persistence.EntityNotFoundException("Task not found with id " + id));
+        return task;
+    }
 }

@@ -75,4 +75,13 @@ public class InMemoryTaskRepository implements TaskRepository {
         // Simple implementation - return all tasks (ignoring example)
         return (List<S>) findAll();
     }
+
+    @Override
+    public Task getReferenceById(Long id) {
+        Task task = tasks.get(id);
+        if (task == null) {
+            throw new javax.persistence.EntityNotFoundException("Task not found with id " + id);
+        }
+        return task;
+    }
 }
