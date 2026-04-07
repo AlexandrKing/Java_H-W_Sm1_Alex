@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ semestr2 ]
+    branches: [ semestr2, hometask_2, hometask_3 ]
   pull_request:
-    branches: [ semestr2 ]
+    branches: [ semestr2, hometask_2, hometask_3 ]
 
 jobs:
   build:
@@ -12,14 +12,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up JDK 8
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '8'
         distribution: 'temurin'
         cache: maven
+    - name: Verify Java version
+      run: java -version
     - name: Build with Maven
-      run: mvn clean compile
-    - name: Run tests
-      run: mvn test
+      run: mvn clean package
