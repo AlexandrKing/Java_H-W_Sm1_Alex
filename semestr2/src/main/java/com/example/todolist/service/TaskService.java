@@ -79,7 +79,7 @@ public class TaskService {
         for (Long id : ids) {
             Optional<Task> taskOpt = taskRepository.findById(id);
             if (!taskOpt.isPresent()) {
-                throw new TaskNotFoundException(id);
+                throw new BulkTaskCompletionException(id);
             }
             Task task = taskOpt.get();
             task.setCompleted(true);

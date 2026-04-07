@@ -1,5 +1,6 @@
 package com.example.todolist.service;
 
+import com.example.todolist.exception.BulkTaskCompletionException;
 import com.example.todolist.exception.TaskNotFoundException;
 import com.example.todolist.model.Priority;
 import com.example.todolist.model.Task;
@@ -84,8 +85,8 @@ public class TaskServiceIntegrationTest {
 
         // When & Then
         assertThatThrownBy(() -> taskService.bulkCompleteTasks(Arrays.asList(savedTask1.getId(), 999L)))
-                .isInstanceOf(TaskNotFoundException.class)
-                .hasMessage("Task with id 999 not found");
+                .isInstanceOf(BulkTaskCompletionException.class)
+                .hasMessage("Task with id 999 not found during bulk completion");
 
         // Verify rollback - task1 should still be incomplete
         Task unchangedTask = taskService.getTaskById(savedTask1.getId()).get();
