@@ -74,7 +74,7 @@ public class TaskService {
         for (Long id : ids) {
             Optional<Task> taskOpt = taskRepository.findById(id);
             if (!taskOpt.isPresent()) {
-                throw new TaskNotFoundException("Task with id " + id.toString() + " not found");
+                throw new TaskNotFoundException(id);
             }
             Task task = taskOpt.get();
             task.setCompleted(true);

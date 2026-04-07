@@ -63,4 +63,10 @@ public class InMemoryTaskRepository implements TaskRepository {
                         !task.getDueDate().isAfter(nextWeek))
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    @Override
+    public <S extends Task> List<S> findAll(org.springframework.data.domain.Example<S> example, org.springframework.data.domain.Sort sort) {
+        // Simple implementation - return all tasks (ignoring example and sort for now)
+        return (List<S>) findAll();
+    }
 }
