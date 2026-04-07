@@ -1,5 +1,6 @@
 package com.example.todolist.service;
 
+import com.example.todolist.exception.BulkTaskCompletionException;
 import com.example.todolist.exception.TaskNotFoundException;
 import com.example.todolist.model.Task;
 import com.example.todolist.repository.TaskRepository;
@@ -67,9 +68,13 @@ public class TaskService {
      * Marks multiple tasks as completed in a single transaction.
      * If any task ID doesn't exist, the entire operation is rolled back.
      * @param ids list of task IDs to mark as completed
-     * @throws TaskNotFoundException if any task ID doesn't exist
+     * @throws BulkTaskCompletionException if any task ID doesn't exist
      */
-    @Transactional
+    @Transactional(
+        propagation = org.springframework.transaction.annotation.Propagation.REQUIRED,
+        isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED,
+        rollbackFor = BulkTaskCompletionException.class
+    )
     public void bulkCompleteTasks(List<Long> ids) {
         for (Long id : ids) {
             Optional<Task> taskOpt = taskRepository.findById(id);

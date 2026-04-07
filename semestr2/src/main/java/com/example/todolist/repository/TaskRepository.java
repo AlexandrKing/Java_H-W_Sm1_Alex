@@ -1,6 +1,7 @@
 package com.example.todolist.repository;
 
 import com.example.todolist.model.Task;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      */
     @Query("SELECT t FROM Task t WHERE t.dueDate BETWEEN :today AND :nextWeek AND t.completed = false")
     List<Task> findTasksDueWithin7Days(@Param("today") LocalDate today, @Param("nextWeek") LocalDate nextWeek);
+
+    /**
+     * Finds all tasks with their attachments loaded to avoid N+1 problem.
+     * @return list of tasks with eagerly loaded attachments
+     */
+    @EntityGraph(attributePaths = {"attachments"})
+    List<Task> findAllWithAttachments();
 }
