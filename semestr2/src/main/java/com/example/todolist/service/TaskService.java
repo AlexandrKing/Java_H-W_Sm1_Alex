@@ -1,65 +1,35 @@
 package com.example.todolist.service;
 
+import com.example.todolist.exception.BulkTaskCompletionException;
 import com.example.todolist.model.Task;
 import com.example.todolist.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Service class for managing tasks.
- * Provides business logic for task operations.
- */
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final Map<Long, Task> taskCache = new ConcurrentHashMap<>();
 
-    @Value("${app.name}")
-    private String appName;
-
-    @Value("${app.version}")
-    private String appVersion;
-
-    /**
-     * Constructor injection of TaskRepository.
-     * @param taskRepository the repository to use
-     */
     @Autowired
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
-    /**
-     * Initializes the cache with predefined tasks.
-     */
-    @PostConstruct
-    public void initCache() {
-        // Load some predefined tasks into cache
-        taskCache.put(1L, new Task(1L, "Default Task 1", "Description 1", false));
-        taskCache.put(2L, new Task(2L, "Default Task 2", "Description 2", true));
-        System.out.println("Task cache initialized with " + taskCache.size() + " tasks in " + appName + " v" + appVersion + ".");
-    }
-
-    /**
-     * Cleans up resources before bean destruction.
-     */
-    @PreDestroy
-    public void cleanup() {
-        System.out.println("Cleaning up TaskService. Cache contains " + taskCache.size() + " tasks.");
-        // Could save statistics to file here
-    }
-
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
+    }
+
+    public List<Task> getAllTasksWithAttachments() {
+        return taskRepository.findAllWithAttachments();
     }
 
     public Optional<Task> getTaskById(Long id) {
@@ -84,5 +54,32 @@ public class TaskService {
             return true;
         }
         return false;
+    }
+
+    @Transactional(
+        propagation = Propagation.REQUIRED,
+        isolation = Isolation.READ_COMMITTED,
+        rollbackFor = BulkTaskCompletionException.class
+    )
+    public void bulkCompleteTasks(List<Long> ids) {
+        List<Task> tasksToUpdate = new ArrayList<>();
+
+        for (Long id : ids) {
+            Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new BulkTaskCompletionException(id));
+            tasksToUpdate.add(task);
+        }
+
+        for (Task task : tasksToUpdate) {
+            task.setCompleted(true);
+        }
+
+        taskRepository.saveAll(tasksToUpdate);
+    }
+
+    public List<Task> getTasksDueWithin7Days() {
+        LocalDate today = LocalDate.now();
+        LocalDate nextWeek = today.plusDays(7);
+        return taskRepository.findTasksDueWithin7Days(today, nextWeek);
     }
 }
